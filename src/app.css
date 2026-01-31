@@ -1,0 +1,62 @@
+@config "../tailwind.config.js";
+
+@import 'tailwindcss';
+@import 'tailwind-scrollbar-hide/v4';
+@plugin 'tailwind-scrollbar';
+
+@layer base {
+  @font-face {
+    font-family: 'Noto Sans KR';
+    font-weight: 100;
+    font-display: swap;
+    src: url('/fonts/NotoSansKR-Thin.ttf') format('woff2');
+  }
+  @font-face {
+    font-family: 'Noto Sans KR';
+    font-weight: 200;
+    font-display: swap;
+    src: url('/fonts/NotoSansKR-ExtraLight.ttf') format('woff2');
+  }
+  @font-face {
+    font-family: 'Noto Sans KR';
+    font-weight: 300;
+    font-display: swap;
+    src: url('/fonts/NotoSansKR-Light.ttf') format('woff2');
+  }
+  @font-face {
+    font-family: 'Noto Sans KR';
+    font-weight: 400;
+    font-display: swap;
+    src: url('/fonts/NotoSansKR-Regular.ttf') format('woff2');
+  }
+  @font-face {
+    font-family: 'Noto Sans KR';
+    font-weight: 500;
+    font-display: swap;
+    src: url('/fonts/NotoSansKR-Medium.ttf') format('woff2');
+  }
+  @font-face {
+    font-family: 'Noto Sans KR';
+    font-weight: 600;
+    font-display: swap;
+    src: url('/fonts/NotoSansKR-SemiBold.ttf') format('woff2');
+  }
+  @font-face {
+    font-family: 'Noto Sans KR';
+    font-weight: 700;
+    font-display: swap;
+    src: url('/fonts/NotoSansKR-Bold.ttf') format('woff2');
+  }
+  @font-face {
+    font-family: 'Noto Sans KR';
+    font-weight: 800;
+    font-display: swap;
+    src: url('/fonts/NotoSansKR-ExtraBold.ttf') format('woff2');
+  }
+  @font-face {
+    font-family: 'Noto Sans KR';
+    font-weight: 900;
+    font-display: swap;
+    src: url('/fonts/NotoSansKR-Black.ttf') format('woff2');
+  }
+}
