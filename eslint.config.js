@@ -1,5 +1,6 @@
 import eslint from '@eslint/js';
 import typescripteslint from '@typescript-eslint/eslint-plugin';
+import tsParser from '@typescript-eslint/parser';
 import { defineConfig } from 'eslint/config';
 import importConfig from 'eslint-plugin-import';
 import svelte from 'eslint-plugin-svelte';
@@ -87,10 +88,13 @@ export default defineConfig(
   },
   {
     // Svelte files
-    files: ['**/*.svelte', '**/*.svelte.ts', '**/*.svelte.js'],
+    files: ['**/*.svelte', '*.svelte', '**/*.svelte.ts', '*.svelte.ts', '**/*.svelte.js', '*.svelte.js'],
     languageOptions: {
       globals: { ...globals.browser },
       parser: svelteParser,
+      parserOptions: {
+        parser: tsParser,
+      }
     },
     plugins: { svelte, import: importConfig, '@typescript-eslint': typescripteslint },
     rules: {
