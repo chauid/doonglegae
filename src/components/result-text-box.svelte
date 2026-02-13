@@ -1,60 +1,53 @@
 <script lang="ts">
-  import { ClipboardCopy } from '@lucide/svelte';
+  import { ClipboardCopy, Expand } from '@lucide/svelte';
 
-  import ToastBox from '$components/toast-box.svelte';
-  import { cn } from '$utils/utils';
+  import type { ClassValue } from 'svelte/elements';
+
+  import { toast } from '$libs/toast';
+  import { cn } from '$libs/utils';
 
   interface Props {
     value?: string;
+    class?: ClassValue | undefined | null;
   }
 
-  let { value = '' }: Props = $props();
-  let toastOpen = $state(false);
-  let toastMessage = $state('');
-  let toastTimer: ReturnType<typeof setTimeout> | null = $state(null);
-
-  function openToast(message: string) {
-    toastMessage = message;
-    toastOpen = true;
-    if (toastTimer) {
-      clearTimeout(toastTimer);
-    }
-    toastTimer = setTimeout(() => {
-      toastOpen = false;
-    }, 2000);
-  }
+  let { value = '', class: className }: Props = $props();
 
   function copyToClipboard() {
     if (!value.trim()) {
-      openToast('복사할 내용이 없습니다');
+      toast.info('복사할 내용이 없습니다');
       return;
     }
     navigator.clipboard.writeText(value);
-    openToast('복사 완료');
+    toast.success('복사 완료');
   }
 </script>
 
-<div class="w-full">
+<div class="flex w-full flex-col {cn(className)}">
   <div class="mb-3 flex items-center justify-between">
     <p class="block text-lg font-semibold text-gray-700">결과 텍스트</p>
-    <button
-      class={cn(
-        'cursor-pointer rounded bg-gray-200 px-3 py-1 text-sm text-white transition-colors ',
-        'hover:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-50',
-      )}
-      disabled={!value.trim()}
-      onclick={copyToClipboard}
-    >
-      <ClipboardCopy />
-      복사
-    </button>
+    <div class="flex gap-2">
+      <button class="flex cursor-pointer flex-col items-center rounded bg-gray-200 px-3 py-1 text-xs text-black transition-colors hover:bg-gray-300">
+        <Expand />
+        <span>크게 보기</span>
+      </button>
+      <button
+        class={cn(
+          'flex cursor-pointer flex-col items-center rounded bg-gray-200 px-3 py-1 text-xs text-black transition-colors ',
+          'hover:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-50',
+        )}
+        disabled={!value.trim()}
+        onclick={copyToClipboard}
+      >
+        <ClipboardCopy />
+        <span>복사</span>
+      </button>
+    </div>
   </div>
-  <div class="max-h-64 min-h-40 w-full overflow-auto rounded-lg border-2 border-gray-300 bg-gray-50 p-4 wrap-break-word whitespace-pre-wrap">
+  <div class="h-full w-full overflow-auto rounded-lg border-2 border-gray-300 bg-gray-50 p-4 wrap-break-word whitespace-pre-wrap">
     {value}
   </div>
   <p class="mt-2 text-xs text-gray-500">
-    {value.length} / 5000 자
+    {value.length}자 {new TextEncoder().encode(value).length}(byte)
   </p>
 </div>
-
-<ToastBox message={toastMessage} open={toastOpen} variant="success" />

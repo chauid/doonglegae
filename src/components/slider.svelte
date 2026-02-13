@@ -1,4 +1,8 @@
 <script lang="ts">
+  import type { ClassValue } from 'svelte/elements';
+
+  import { cn } from '$libs/utils';
+
   interface Props {
     value?: number;
     min?: number;
@@ -6,10 +10,11 @@
     step?: number;
     label?: string;
     isInputNumber?: boolean;
+    class?: ClassValue | undefined | null;
     onChange?: (value: number) => void;
   }
 
-  let { value = $bindable(0), min = 0, max = 100, step = 1, label = '슬라이더', isInputNumber = false, onChange }: Props = $props();
+  let { value = $bindable(0), min = 0, max = 100, step = 1, label = '슬라이더', isInputNumber = false, class: className, onChange }: Props = $props();
   function handleChange(e: Event) {
     const val = Number((e.target as HTMLInputElement).value);
     value = val;
@@ -17,8 +22,8 @@
   }
 </script>
 
-<div class="w-full">
-  <div class="mb-2 flex items-center justify-between">
+<div class={cn('w-full', className)}>
+  <div class="flex items-center justify-between">
     <p class="text-sm font-semibold text-gray-700">{label}</p>
     {#if isInputNumber}
       <input

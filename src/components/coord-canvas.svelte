@@ -2,9 +2,9 @@
   import { ScanSearch } from '@lucide/svelte';
   import { onMount } from 'svelte';
 
-  import type { Point2d } from '$utils/transform';
+  import type { Point2d } from '$libs/points';
 
-  import { cn } from '$utils/utils';
+  import { cn } from '$libs/utils';
 
   interface Props {
     coords?: Point2d[];
@@ -40,11 +40,8 @@
     const ctx = canvasRef.getContext('2d');
     if (!ctx) return;
 
-    const dpr = window.devicePixelRatio;
     const width = canvasRef.width;
     const height = canvasRef.height;
-
-    ctx.scale(dpr, dpr);
 
     // 배경
     ctx.fillStyle = '#ffffff';
@@ -215,8 +212,8 @@
     const deltaX = e.clientX - dragStartX;
     const deltaY = e.clientY - dragStartY;
 
-    offsetX += (deltaX / scale) * 1.05;
-    offsetY -= (deltaY / scale) * 1.05;
+    offsetX += (deltaX / scale) * 2;
+    offsetY -= (deltaY / scale) * 2;
 
     dragStartX = e.clientX;
     dragStartY = e.clientY;
@@ -225,6 +222,33 @@
   }
 
   function handleCanvasMouseUp() {
+    isDragging = false;
+  }
+
+  function handleCanvasTouchStart(e: TouchEvent) {
+    if (e.touches.length === 1) {
+      isDragging = true;
+      dragStartX = e.touches[0].clientX;
+      dragStartY = e.touches[0].clientY;
+    }
+  }
+
+  function handleCanvasTouchMove(e: TouchEvent) {
+    if (!isDragging || e.touches.length !== 1) return;
+
+    const deltaX = e.touches[0].clientX - dragStartX;
+    const deltaY = e.touches[0].clientY - dragStartY;
+
+    offsetX += (deltaX / scale) * 2;
+    offsetY -= (deltaY / scale) * 2;
+
+    dragStartX = e.touches[0].clientX;
+    dragStartY = e.touches[0].clientY;
+
+    render();
+  }
+
+  function handleCanvasTouchEnd(e: TouchEvent) {
     isDragging = false;
   }
 
@@ -271,12 +295,16 @@
 
   <canvas
     bind:this={canvasRef}
-    class="h-full w-full cursor-grab border border-gray-300 bg-white active:cursor-grabbing"
+    class="h-full w-full cursor-grab touch-none border border-gray-300 bg-white active:cursor-grabbing"
     height={CANVAS_HEIGHT}
     onmousedown={handleCanvasMouseDown}
     onmouseleave={handleCanvasMouseUp}
     onmousemove={handleCanvasMouseMove}
     onmouseup={handleCanvasMouseUp}
+    ontouchcancel={handleCanvasTouchEnd}
+    ontouchend={handleCanvasTouchEnd}
+    ontouchmove={handleCanvasTouchMove}
+    ontouchstart={handleCanvasTouchStart}
     onwheel={handleCanvasWheel}
     width={CANVAS_WIDTH}
   ></canvas>

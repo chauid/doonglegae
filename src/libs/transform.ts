@@ -1,4 +1,4 @@
-import { absMaxPoint, type Point2d } from '$libs/points';
+import { absMaxPoint, type Point2d } from './points';
 
 export const SPIRAL_TYPES = ['archimedean', 'logarithmic', 'fermat', 'hyperbolic', 'lituus', 'theodorus', 'fibonacci'] as const;
 export type SpiralType = (typeof SPIRAL_TYPES)[number];

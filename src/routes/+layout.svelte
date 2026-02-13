@@ -1,4 +1,5 @@
 <script lang="ts">
+  import ToastBox from '$components/toast-box.svelte';
   import '../app.css';
 
   let { children } = $props();
@@ -10,4 +11,5 @@
 
 <main class="font-layout">
   {@render children()}
+  <ToastBox />
 </main>

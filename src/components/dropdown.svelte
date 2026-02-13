@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { SPIRAL_TYPES, type SpiralType } from '$utils/transform';
+  import { SPIRAL_TYPES, type SpiralType } from '$libs/spiral';
 
   interface Option {
     label: string;
@@ -26,8 +26,9 @@
 </script>
 
 <div class="w-full">
-  <p class="mb-2 block text-sm font-semibold text-gray-700">{title}</p>
+  <label class="mb-2 block text-sm font-semibold text-gray-700" for="dropdown-{title}">{title}</label>
   <select
+    id="dropdown-{title}"
     class="w-full rounded-lg border-2 border-gray-300 bg-white p-3 text-gray-800 transition-colors focus:border-blue-500 focus:outline-none"
     onchange={handleChange}
     bind:value

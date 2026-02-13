@@ -1,113 +1,113 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
+  import { MediaQuery } from 'svelte/reactivity';
+
+
+  import type { Point2d } from '$libs/points';
+
   import CoordCanvas from '$components/coord-canvas.svelte';
   import Dropdown from '$components/dropdown.svelte';
   import Slider from '$components/slider.svelte';
-  import { SPIRAL_TYPES, spiralFunction, type Point2d, type SpiralType } from '$utils/transform';
+  import {
+    getPresetOptions,
+    getRequiredOpions,
+    SPIRAL_TYPES,
+    spiralFunction,
+    type InputOptions,
+    type SpiralType,
+  } from '$libs/spiral';
+  import { cn } from '$libs/utils';
 
-  let coords: Point2d[] = $state([]);
-  let maxA = 100;
-  let maxB = 100;
-  let maxTheta = 100;
-  let maxThetaStep = 20;
-  let a: number = $state(10);
-  let b: number = $state(5);
-  let theta: number = $state(0.1);
-  let thetaStep: number = $state(0.1);
-  let n: number = $state(100);
-  let selectedOption: SpiralType = 'archimedean';
-  let typelist = Object.values(SPIRAL_TYPES).map((type) => ({
+  const typelist = Object.values(SPIRAL_TYPES).map((type) => ({
     label: type.charAt(0).toUpperCase() + type.slice(1),
     value: type,
   }));
 
+  let coords: Point2d[] = $state([]);
+  let inputOptions: InputOptions = $state(getPresetOptions('archimedean', 'point'));
+  let selectedOption: SpiralType = $state('archimedean');
+
+  onMount(() => {
+    updateSpiral();
+  });
+
   function updateSpiral() {
     coords = [];
-    const spiralResult = spiralFunction(selectedOption, { a, b, theta, thetaStep, n });
+    const spiralResult = spiralFunction(selectedOption, {
+      mode: 'point',
+      a: inputOptions.a,
+      b: inputOptions.b,
+      theta: inputOptions.initTheta,
+      thetaStep: inputOptions.thetaStep,
+      n: inputOptions.n,
+    });
     coords.push(...spiralResult);
   }
 
   function handleOnChangeSelect(value: SpiralType) {
-    switch (value) {
-      case 'archimedean':
-        a = 10;
-        b = 5;
-        theta = 0.1;
-        thetaStep = 0.1;
-        n = 100;
-        break;
-      case 'logarithmic':
-        a = 10;
-        b = 0.2;
-        theta = 0.1;
-        thetaStep = 0.05;
-        n = 200;
-        break;
-      case 'fermat':
-        a = 10;
-        b = 0;
-        theta = 0;
-        thetaStep = 0.2;
-        n = 150;
-        break;
-      case 'hyperbolic':
-        a = 50;
-        b = 0;
-        theta = 0.1;
-        break;
-      case 'lituus':
-        a = 100;
-        b = 0;
-        theta = 0.1;
-        break;
-      case 'fibonacci':
-        a = 0;
-        b = 0;
-        theta = 0.1;
-        break;
-      case 'theodorus':
-        a = 0;
-        b = 0;
-        theta = 0.1;
-        break;
-    }
+    inputOptions = getPresetOptions(value, 'point');
     selectedOption = value;
     updateSpiral();
   }
 
-  function handleOnChangeRangeA(value: number) {
-    a = value;
+  function handleOnChangeRange(type: keyof InputOptions, value: number) {
+    inputOptions[type] = value;
     updateSpiral();
   }
 
-  function handleOnChangeRangeB(value: number) {
-    b = value;
-    updateSpiral();
-  }
-
-  function handleOnChangeRangeTheta(value: number) {
-    theta = value;
-    updateSpiral();
-  }
-
-  function handleOnChangeRangeN(value: number) {
-    n = value;
-    updateSpiral();
-  }
-
-  function handleOnChangeRangeThetaStep(value: number) {
-    thetaStep = value;
-    updateSpiral();
-  }
+  const mobile = new MediaQuery('max-width: 1000px');
 </script>
 
-<div class="flex">
+<div class={cn('flex', mobile.current && 'flex-col')}>
   <div class="mx-4 my-2 flex w-64 flex-col gap-4">
-    <Dropdown onChange={(v) => handleOnChangeSelect(v)} options={typelist} placeholder="Select a spiral type" title="Spiral Type" />
-    <Slider isInputNumber={true} label="a" max={maxA} min={0} onChange={handleOnChangeRangeA} step={0.1} value={a} />
-    <Slider isInputNumber={true} label="b" max={maxB} min={0} onChange={handleOnChangeRangeB} step={0.1} value={b} />
-    <Slider isInputNumber={true} label="θ" max={maxTheta} min={0} onChange={handleOnChangeRangeTheta} step={0.1} value={theta} />
-    <Slider isInputNumber={true} label="θ step" max={maxThetaStep} min={0} onChange={handleOnChangeRangeThetaStep} step={0.01} value={thetaStep} />
-    <Slider isInputNumber={true} label="n" max={2000} min={1} onChange={handleOnChangeRangeN} step={1} value={n} />
+    <Dropdown
+      onChange={(v) => handleOnChangeSelect(v)}
+      options={typelist}
+      placeholder="Select a spiral type"
+      title="Spiral Type"
+      value={selectedOption}
+    />
+    <Slider
+      class={getRequiredOpions(selectedOption).includes('a') ? 'block' : 'hidden'}
+      isInputNumber={true}
+      label="a"
+      max={inputOptions.maxA}
+      min={inputOptions.minA}
+      onChange={(value) => handleOnChangeRange('a', value)}
+      step={inputOptions.aStep}
+      value={inputOptions.a}
+    />
+    <Slider
+      class={getRequiredOpions(selectedOption).includes('b') ? 'block' : 'hidden'}
+      isInputNumber={true}
+      label="b"
+      max={inputOptions.maxB}
+      min={inputOptions.minB}
+      onChange={(value) => handleOnChangeRange('b', value)}
+      step={inputOptions.bStep}
+      value={inputOptions.b}
+    />
+    <Slider
+      class={getRequiredOpions(selectedOption).includes('theta') ? 'block' : 'hidden'}
+      isInputNumber={true}
+      label="θ"
+      max={inputOptions.maxInitTheta}
+      min={inputOptions.minInitTheta}
+      onChange={(value) => handleOnChangeRange('initTheta', value)}
+      step={inputOptions.initThetaStep}
+      value={inputOptions.initTheta}
+    />
+    <Slider
+      class={getRequiredOpions(selectedOption).includes('thetaStep') ? 'block' : 'hidden'}
+      isInputNumber={true}
+      label="θ step"
+      max={inputOptions.maxThetaStep}
+      min={inputOptions.minThetaStep}
+      onChange={(value) => handleOnChangeRange('thetaStep', value)}
+      step={inputOptions.thetaStepStep}
+      value={inputOptions.thetaStep}
+    />
+    <Slider isInputNumber={true} label="n" max={2000} min={1} onChange={(value) => handleOnChangeRange('n', value)} step={1} value={inputOptions.n} />
   </div>
   <div class="m-1 w-full rounded-lg border border-gray-300 p-2">
     <CoordCanvas {coords} />
