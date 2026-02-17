@@ -20,7 +20,7 @@
 <div class="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 flex flex-col gap-2">
 	{#each toasts as toast (toast.id)}
 		<div transition:fade={{ duration: 150 }}>
-			<div class="px-4 py-2 rounded-md shadow-lg text-sm font-medium {variantClasses[toast.variant]}">
+			<div class="px-4 py-2 rounded-md shadow-lg text-sm font-medium text-center {variantClasses[toast.variant]}">
 				{toast.message}
 			</div>
 		</div>

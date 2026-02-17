@@ -1,21 +1,14 @@
 <script lang="ts">
+  import { House } from '@lucide/svelte';
   import { onMount } from 'svelte';
   import { MediaQuery } from 'svelte/reactivity';
-
 
   import type { Point2d } from '$libs/points';
 
   import CoordCanvas from '$components/coord-canvas.svelte';
   import Dropdown from '$components/dropdown.svelte';
   import Slider from '$components/slider.svelte';
-  import {
-    getPresetOptions,
-    getRequiredOpions,
-    SPIRAL_TYPES,
-    spiralFunction,
-    type InputOptions,
-    type SpiralType,
-  } from '$libs/spiral';
+  import { getPresetOptions, getRequiredOpions, SPIRAL_TYPES, spiralFunction, type InputOptions, type SpiralType } from '$libs/spiral';
   import { cn } from '$libs/utils';
 
   const typelist = Object.values(SPIRAL_TYPES).map((type) => ({
@@ -59,7 +52,12 @@
 </script>
 
 <div class={cn('flex', mobile.current && 'flex-col')}>
-  <div class="mx-4 my-2 flex w-64 flex-col gap-4">
+  <div class="mx-4 my-2 flex w-64 flex-col gap-2">
+    <div class="flex justify-center">
+      <a class="cursor-pointer rounded bg-white p-1.5 hover:bg-gray-300" href="./" title="https://chauid.github.io/doonglegae">
+        <House />
+      </a>
+    </div>
     <Dropdown
       onChange={(v) => handleOnChangeSelect(v)}
       options={typelist}

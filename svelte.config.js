@@ -17,6 +17,7 @@ const config = {
       $components: 'src/components',
       $stores: 'src/stores',
       $libs: 'src/libs',
+      $assets: 'src/assets',
       $routes: 'src/routes',
     },
     paths: {

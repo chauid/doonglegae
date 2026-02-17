@@ -10,6 +10,7 @@ export type SpiralParams = {
   theta?: number;
   thetaStep?: number;
   n?: number;
+  inversed?: boolean;
 };
 
 export type InputOptions = {
@@ -63,12 +64,25 @@ export function ArchimedeanSpiral(params: SpiralParams): Point2d[] {
     }
   }
   if (params.mode === 'text') {
+    const limitN = params.n * 10;
     let moddedN = params.n;
     let moddedCounter = 0;
-    let prevX = 0;
-    let prevY = 0;
+    let prevX = NaN;
+    let prevY = NaN;
     for (let i = 0; i < moddedN; i++) {
-      if (moddedCounter > 1000) break;
+      if (i > limitN) {
+        // console.log('중복 한계:' + i);
+        for (let j = i; j < moddedN; j++) {
+          points.push({ x: Math.round(x), y: Math.round(y / 4) }); // 중복 좌표에 대해 원본 문자열 길이의 10배 이상 시점부터는 이전과 동일한 값으로 채움
+        }
+        break;
+      }
+      if (moddedCounter > 10) {
+        // console.log('중복 10회:' + i);
+        points.push({ x: Math.round(x), y: Math.round(y / 4) }); // 중복 좌표가 10번 이상 발생 시점부터는 이전과 동일한 값으로 push
+        moddedCounter = 0;
+        continue;
+      }
       angle = params.theta + i * params.thetaStep;
       r = params.a + params.b * angle;
       x = r * Math.cos(angle);
@@ -117,12 +131,23 @@ export function LogSpiral(params: SpiralParams): Point2d[] {
     }
   }
   if (params.mode === 'text') {
+    const limitN = params.n * 10;
     let moddedN = params.n;
     let moddedCounter = 0;
-    let prevX = 0;
-    let prevY = 0;
+    let prevX = NaN;
+    let prevY = NaN;
     for (let i = 0; i < moddedN; i++) {
-      if (moddedCounter > 1000) break;
+      if (i > limitN) {
+        for (let j = i; j < moddedN; j++) {
+          points.push({ x: Math.round(x), y: Math.round(y / 4) });
+        }
+        break;
+      }
+      if (moddedCounter > 10) {
+        points.push({ x: Math.round(x), y: Math.round(y / 4) });
+        moddedCounter = 0;
+        continue;
+      }
       angle = params.theta + i * params.thetaStep;
       r = params.a * Math.exp(params.b * angle);
       x = r * Math.cos(angle);
@@ -160,12 +185,23 @@ export function FermatSpiral(params: SpiralParams): Point2d[] {
     }
   }
   if (params.mode === 'text') {
+    const limitN = params.n * 10;
     let moddedN = params.n;
     let moddedCounter = 0;
-    let prevX = 0;
-    let prevY = 0;
+    let prevX = NaN;
+    let prevY = NaN;
     for (let i = 0; i < moddedN; i++) {
-      if (moddedCounter > 1000) break;
+      if (i > limitN) {
+        for (let j = i; j < moddedN; j++) {
+          points.push({ x: Math.round(x), y: Math.round(y / 4) });
+        }
+        break;
+      }
+      if (moddedCounter > 10) {
+        points.push({ x: Math.round(x), y: Math.round(y / 4) });
+        moddedCounter = 0;
+        continue;
+      }
       angle = params.theta + i * params.thetaStep;
       r = params.a * Math.sqrt(angle);
       x = r * Math.cos(angle);
@@ -203,12 +239,23 @@ export function HyperbolicSpiral(params: SpiralParams): Point2d[] {
     }
   }
   if (params.mode === 'text') {
+    const limitN = params.n * 10;
     let moddedN = params.n;
     let moddedCounter = 0;
-    let prevX = 0;
-    let prevY = 0;
+    let prevX = NaN;
+    let prevY = NaN;
     for (let i = 0; i < moddedN; i++) {
-      if (moddedCounter > 1000) break;
+      if (i > limitN) {
+        for (let j = i; j < moddedN; j++) {
+          points.push({ x: Math.round(x), y: Math.round(y / 4) });
+        }
+        break;
+      }
+      if (moddedCounter > 10) {
+        points.push({ x: Math.round(x), y: Math.round(y / 4) });
+        moddedCounter = 0;
+        continue;
+      }
       angle = params.theta + i * params.thetaStep;
       r = params.a / angle;
       x = r * Math.cos(angle);
@@ -246,12 +293,23 @@ export function LituusSpiral(params: SpiralParams): Point2d[] {
     }
   }
   if (params.mode === 'text') {
+    const limitN = params.n * 10;
     let moddedN = params.n;
     let moddedCounter = 0;
-    let prevX = 0;
-    let prevY = 0;
+    let prevX = NaN;
+    let prevY = NaN;
     for (let i = 0; i < moddedN; i++) {
-      if (moddedCounter > 1000) break;
+      if (i > limitN) {
+        for (let j = i; j < moddedN; j++) {
+          points.push({ x: Math.round(x), y: Math.round(y / 4) });
+        }
+        break;
+      }
+      if (moddedCounter > 10) {
+        points.push({ x: Math.round(x), y: Math.round(y / 4) });
+        moddedCounter = 0;
+        continue;
+      }
       angle = params.theta + i * params.thetaStep;
       r = params.a / Math.sqrt(angle);
       x = r * Math.cos(angle);
@@ -261,9 +319,19 @@ export function LituusSpiral(params: SpiralParams): Point2d[] {
         moddedCounter++;
         continue;
       }
-      prevX = x;
-      prevY = y;
-      points.push({ x: Math.round(x), y: Math.round(y / 4) });
+      if (Number.isNaN(x) || Number.isNaN(y)) {
+        if (Number.isNaN(prevX) || Number.isNaN(prevY)) {
+          moddedN++;
+          moddedCounter++;
+          continue;
+        } else {
+          points.push({ x: Math.round(prevX), y: Math.round(prevY / 4) });
+        }
+      } else {
+        points.push({ x: Math.round(x), y: Math.round(y / 4) });
+        prevX = x;
+        prevY = y;
+      }
     }
   }
   return points;
@@ -287,12 +355,23 @@ export function SpiralOfTheodorus(params: SpiralParams): Point2d[] {
     }
   }
   if (params.mode === 'text') {
+    const limitN = params.n * 10;
     let moddedN = params.n;
     let moddedCounter = 0;
-    let prevX = 0;
-    let prevY = 0;
+    let prevX = NaN;
+    let prevY = NaN;
     for (let i = 1; i <= moddedN; i++) {
-      if (moddedCounter > 1000) break;
+      if (i > limitN) {
+        for (let j = i; j < moddedN; j++) {
+          points.push({ x: Math.round(x), y: Math.round(y / 4) });
+        }
+        break;
+      }
+      if (moddedCounter > 10) {
+        points.push({ x: Math.round(x), y: Math.round(y / 4) });
+        moddedCounter = 0;
+        continue;
+      }
       angle += Math.atan(1 / Math.sqrt(i));
       x += Math.cos(angle) * Math.sqrt(i);
       y += Math.sin(angle) * Math.sqrt(i);
@@ -411,7 +490,7 @@ export function spiralFunction(spiralType: SpiralType, options: SpiralParams) {
   }
 }
 
-export function transformTextToSpiral(text: string, spiralType: SpiralType, language: string, options: SpiralParams): string {
+export function transformTextToSpiral(text: string, spiralType: SpiralType, options: SpiralParams): string {
   const setOptions: SpiralParams = {
     mode: options.mode,
     a: options.a ?? 1,
@@ -419,6 +498,7 @@ export function transformTextToSpiral(text: string, spiralType: SpiralType, lang
     theta: options.theta ?? 0.1,
     thetaStep: options.thetaStep ?? 0.5,
     n: text.length,
+    inversed: options.inversed ?? false,
   };
 
   let points: Point2d[] = [];
@@ -464,8 +544,14 @@ export function transformTextToSpiral(text: string, spiralType: SpiralType, lang
     processingText.push(row);
   }
 
+  if (setOptions.inversed) {
+    points = points.reverse();
+  }
+
   points.forEach((point, index) => {
-    processingText[point.y][point.x] = text.charAt(index);
+    if (!Number.isNaN(point.x) && !Number.isNaN(point.y)) {
+      processingText[point.y][point.x] = text.charAt(index);
+    }
   });
 
   result = processingText.map((row) => row.join('')).join('\n');
@@ -474,166 +560,333 @@ export function transformTextToSpiral(text: string, spiralType: SpiralType, lang
 }
 
 export function getPresetOptions(spiralType: SpiralType, mode: 'point' | 'text'): InputOptions {
-  switch (spiralType) {
-    case 'archimedean':
-      return {
-        a: 5,
-        aStep: 0.1,
-        maxA: 100,
-        minA: -100,
-        b: 2,
-        bStep: 0.1,
-        maxB: 100,
-        minB: -100,
-        initTheta: 0,
-        initThetaStep: 0.1,
-        minInitTheta: -100,
-        maxInitTheta: 100,
-        thetaStep: 0.15,
-        thetaStepStep: 0.01,
-        maxThetaStep: 50,
-        minThetaStep: -50,
-        n: 100,
-      };
-    case 'logarithmic':
-      return {
-        a: 1,
-        aStep: 0.1,
-        maxA: 10,
-        minA: -10,
-        b: 0.2,
-        bStep: 0.1,
-        maxB: 5,
-        minB: -5,
-        initTheta: 0.1,
-        initThetaStep: 0.1,
-        maxInitTheta: 10,
-        minInitTheta: -10,
-        thetaStep: 0.5,
-        thetaStepStep: 0.1,
-        maxThetaStep: 5,
-        minThetaStep: -5,
-        n: 100,
-      };
-    case 'fermat':
-      return {
-        a: 1,
-        aStep: 0.1,
-        maxA: 10,
-        minA: -10,
-        b: 0,
-        bStep: 0,
-        maxB: 0,
-        minB: 0,
-        initTheta: 0.1,
-        initThetaStep: 0.1,
-        maxInitTheta: 10,
-        minInitTheta: -10,
-        thetaStep: 0.5,
-        thetaStepStep: 0.1,
-        maxThetaStep: 5,
-        minThetaStep: -5,
-        n: 100,
-      };
-    case 'hyperbolic':
-      return {
-        a: 1,
-        aStep: 0.1,
-        maxA: 10,
-        minA: -10,
-        b: 0,
-        bStep: 0,
-        maxB: 0,
-        minB: 0,
-        initTheta: 0.1,
-        initThetaStep: 0.1,
-        maxInitTheta: 10,
-        minInitTheta: -10,
-        thetaStep: 0.5,
-        thetaStepStep: 0.1,
-        maxThetaStep: 5,
-        minThetaStep: -5,
-        n: 100,
-      };
-    case 'lituus':
-      return {
-        a: 1,
-        aStep: 0.1,
-        maxA: 10,
-        minA: -10,
-        b: 0,
-        bStep: 0,
-        maxB: 0,
-        minB: 0,
-        initTheta: 0.1,
-        initThetaStep: 0.1,
-        maxInitTheta: 10,
-        minInitTheta: -10,
-        thetaStep: 0.5,
-        thetaStepStep: 0.1,
-        maxThetaStep: 5,
-        minThetaStep: -5,
-        n: 100,
-      };
-    case 'theodorus':
-      return {
-        a: 0,
-        aStep: 0,
-        maxA: 0,
-        minA: 0,
-        b: 0,
-        bStep: 0,
-        maxB: 0,
-        minB: 0,
-        initTheta: 0,
-        initThetaStep: 0,
-        maxInitTheta: 0,
-        minInitTheta: 0,
-        thetaStep: 0,
-        thetaStepStep: 0,
-        maxThetaStep: 0,
-        minThetaStep: 0,
-        n: 100,
-      };
-    case 'fibonacci':
-      return {
-        a: 0,
-        aStep: 0,
-        maxA: 0,
-        minA: 0,
-        b: 0,
-        bStep: 0,
-        maxB: 0,
-        minB: 0,
-        initTheta: 0,
-        initThetaStep: 0,
-        maxInitTheta: 0,
-        minInitTheta: 0,
-        thetaStep: 0,
-        thetaStepStep: 0,
-        maxThetaStep: 0,
-        minThetaStep: 0,
-        n: 100,
-      };
-    default:
-      return {
-        a: 1,
-        aStep: 0.1,
-        maxA: 10,
-        minA: -10,
-        b: 0.2,
-        bStep: 0.1,
-        maxB: 5,
-        minB: -5,
-        initTheta: 0.1,
-        initThetaStep: 0.1,
-        maxInitTheta: 10,
-        minInitTheta: -10,
-        thetaStep: 0.5,
-        thetaStepStep: 0.1,
-        maxThetaStep: 5,
-        minThetaStep: -5,
-        n: 100,
-      };
+  if (mode === 'point') {
+    switch (spiralType) {
+      case 'archimedean':
+        return {
+          a: 5,
+          aStep: 0.1,
+          maxA: 100,
+          minA: -100,
+          b: 2,
+          bStep: 0.1,
+          maxB: 100,
+          minB: -100,
+          initTheta: 0,
+          initThetaStep: 0.1,
+          minInitTheta: -100,
+          maxInitTheta: 100,
+          thetaStep: 0.15,
+          thetaStepStep: 0.01,
+          maxThetaStep: 50,
+          minThetaStep: -50,
+          n: 100,
+        };
+      case 'logarithmic':
+        return {
+          a: 1,
+          aStep: 0.1,
+          maxA: 10,
+          minA: -10,
+          b: 0.2,
+          bStep: 0.1,
+          maxB: 5,
+          minB: -5,
+          initTheta: 0.1,
+          initThetaStep: 0.1,
+          maxInitTheta: 10,
+          minInitTheta: -10,
+          thetaStep: 0.5,
+          thetaStepStep: 0.1,
+          maxThetaStep: 5,
+          minThetaStep: -5,
+          n: 100,
+        };
+      case 'fermat':
+        return {
+          a: 1,
+          aStep: 0.1,
+          maxA: 10,
+          minA: -10,
+          b: 0,
+          bStep: 0,
+          maxB: 0,
+          minB: 0,
+          initTheta: 0.1,
+          initThetaStep: 0.1,
+          maxInitTheta: 10,
+          minInitTheta: -10,
+          thetaStep: 0.5,
+          thetaStepStep: 0.1,
+          maxThetaStep: 5,
+          minThetaStep: -5,
+          n: 100,
+        };
+      case 'hyperbolic':
+        return {
+          a: 1,
+          aStep: 0.1,
+          maxA: 10,
+          minA: -10,
+          b: 0,
+          bStep: 0,
+          maxB: 0,
+          minB: 0,
+          initTheta: 0.1,
+          initThetaStep: 0.1,
+          maxInitTheta: 10,
+          minInitTheta: -10,
+          thetaStep: 0.5,
+          thetaStepStep: 0.1,
+          maxThetaStep: 5,
+          minThetaStep: -5,
+          n: 100,
+        };
+      case 'lituus':
+        return {
+          a: 1,
+          aStep: 0.1,
+          maxA: 100,
+          minA: -100,
+          b: 0,
+          bStep: 0,
+          maxB: 0,
+          minB: 0,
+          initTheta: 0.1,
+          initThetaStep: 0.1,
+          maxInitTheta: 10,
+          minInitTheta: -10,
+          thetaStep: 0.5,
+          thetaStepStep: 0.1,
+          maxThetaStep: 5,
+          minThetaStep: -5,
+          n: 100,
+        };
+      case 'theodorus':
+        return {
+          a: 0,
+          aStep: 0,
+          maxA: 0,
+          minA: 0,
+          b: 0,
+          bStep: 0,
+          maxB: 0,
+          minB: 0,
+          initTheta: 0,
+          initThetaStep: 0,
+          maxInitTheta: 0,
+          minInitTheta: 0,
+          thetaStep: 0,
+          thetaStepStep: 0,
+          maxThetaStep: 0,
+          minThetaStep: 0,
+          n: 100,
+        };
+      case 'fibonacci':
+        return {
+          a: 0,
+          aStep: 0,
+          maxA: 0,
+          minA: 0,
+          b: 0,
+          bStep: 0,
+          maxB: 0,
+          minB: 0,
+          initTheta: 0,
+          initThetaStep: 0,
+          maxInitTheta: 0,
+          minInitTheta: 0,
+          thetaStep: 0,
+          thetaStepStep: 0,
+          maxThetaStep: 0,
+          minThetaStep: 0,
+          n: 100,
+        };
+      default:
+        return {
+          a: 1,
+          aStep: 0.1,
+          maxA: 10,
+          minA: -10,
+          b: 0.2,
+          bStep: 0.1,
+          maxB: 5,
+          minB: -5,
+          initTheta: 0.1,
+          initThetaStep: 0.1,
+          maxInitTheta: 10,
+          minInitTheta: -10,
+          thetaStep: 0.5,
+          thetaStepStep: 0.1,
+          maxThetaStep: 5,
+          minThetaStep: -5,
+          n: 100,
+        };
+    }
+    // if (mode === 'text')
+  } else {
+    switch (spiralType) {
+      case 'archimedean':
+        return {
+          a: 0,
+          aStep: 0.1,
+          maxA: 100,
+          minA: -100,
+          b: 2,
+          bStep: 0.1,
+          maxB: 100,
+          minB: -100,
+          initTheta: 0,
+          initThetaStep: 0.1,
+          minInitTheta: -100,
+          maxInitTheta: 100,
+          thetaStep: 0.15,
+          thetaStepStep: 0.01,
+          maxThetaStep: 50,
+          minThetaStep: -50,
+          n: 100,
+        };
+      case 'logarithmic':
+        return {
+          a: 1,
+          aStep: 0.1,
+          maxA: 10,
+          minA: -10,
+          b: 0.2,
+          bStep: 0.1,
+          maxB: 5,
+          minB: -5,
+          initTheta: 0.1,
+          initThetaStep: 0.1,
+          maxInitTheta: 10,
+          minInitTheta: -10,
+          thetaStep: 0.5,
+          thetaStepStep: 0.1,
+          maxThetaStep: 5,
+          minThetaStep: -5,
+          n: 100,
+        };
+      case 'fermat':
+        return {
+          a: 1,
+          aStep: 0.1,
+          maxA: 10,
+          minA: -10,
+          b: 0,
+          bStep: 0,
+          maxB: 0,
+          minB: 0,
+          initTheta: 0.1,
+          initThetaStep: 0.1,
+          maxInitTheta: 10,
+          minInitTheta: -10,
+          thetaStep: 0.5,
+          thetaStepStep: 0.1,
+          maxThetaStep: 5,
+          minThetaStep: -5,
+          n: 100,
+        };
+      case 'hyperbolic':
+        return {
+          a: 1,
+          aStep: 0.1,
+          maxA: 10,
+          minA: -10,
+          b: 0,
+          bStep: 0,
+          maxB: 0,
+          minB: 0,
+          initTheta: 0.1,
+          initThetaStep: 0.1,
+          maxInitTheta: 10,
+          minInitTheta: -10,
+          thetaStep: 0.5,
+          thetaStepStep: 0.1,
+          maxThetaStep: 5,
+          minThetaStep: -5,
+          n: 100,
+        };
+      case 'lituus':
+        return {
+          a: 1,
+          aStep: 0.1,
+          maxA: 100,
+          minA: -100,
+          b: 0,
+          bStep: 0,
+          maxB: 0,
+          minB: 0,
+          initTheta: 0.1,
+          initThetaStep: 0.1,
+          maxInitTheta: 10,
+          minInitTheta: -10,
+          thetaStep: 0.5,
+          thetaStepStep: 0.1,
+          maxThetaStep: 5,
+          minThetaStep: -5,
+          n: 100,
+        };
+      case 'theodorus':
+        return {
+          a: 0,
+          aStep: 0,
+          maxA: 0,
+          minA: 0,
+          b: 0,
+          bStep: 0,
+          maxB: 0,
+          minB: 0,
+          initTheta: 0,
+          initThetaStep: 0,
+          maxInitTheta: 0,
+          minInitTheta: 0,
+          thetaStep: 0,
+          thetaStepStep: 0,
+          maxThetaStep: 0,
+          minThetaStep: 0,
+          n: 100,
+        };
+      case 'fibonacci':
+        return {
+          a: 0,
+          aStep: 0,
+          maxA: 0,
+          minA: 0,
+          b: 0,
+          bStep: 0,
+          maxB: 0,
+          minB: 0,
+          initTheta: 0,
+          initThetaStep: 0,
+          maxInitTheta: 0,
+          minInitTheta: 0,
+          thetaStep: 0,
+          thetaStepStep: 0,
+          maxThetaStep: 0,
+          minThetaStep: 0,
+          n: 100,
+        };
+      default:
+        return {
+          a: 1,
+          aStep: 0.1,
+          maxA: 10,
+          minA: -10,
+          b: 0.2,
+          bStep: 0.1,
+          maxB: 5,
+          minB: -5,
+          initTheta: 0.1,
+          initThetaStep: 0.1,
+          maxInitTheta: 10,
+          minInitTheta: -10,
+          thetaStep: 0.5,
+          thetaStepStep: 0.1,
+          maxThetaStep: 5,
+          minThetaStep: -5,
+          n: 100,
+        };
+    }
+
   }
 }

@@ -5,6 +5,7 @@
   import InputForm from '$components/input-form.svelte';
   import ResultTextBox from '$components/result-text-box.svelte';
   import Slider from '$components/slider.svelte';
+  import Toggle from '$components/toggle.svelte';
   import { getPresetOptions, getRequiredOpions, SPIRAL_TYPES, transformTextToSpiral, type InputOptions, type SpiralType } from '$libs/spiral';
 
   const typelist = Object.values(SPIRAL_TYPES)
@@ -18,14 +19,17 @@
   let inputText = $state('');
   let selectedOption: SpiralType = $state('archimedean');
   let inputOptions: InputOptions = $state(getPresetOptions('archimedean', 'text'));
+  let inversed = $state(false);
+  let includeSpaces = $state(true);
 
   let resultText = $derived(
-    transformTextToSpiral(inputText, selectedOption, 'ko', {
+    transformTextToSpiral(includeSpaces ? inputText : inputText.replace(/\s/g, ''), selectedOption, {
       mode: 'text',
       a: inputOptions.a,
       b: inputOptions.b,
       theta: inputOptions.initTheta,
       thetaStep: inputOptions.thetaStep,
+      inversed,
     }),
   );
 
@@ -38,6 +42,14 @@
     selectedOption = value;
   }
 
+  function handleOnChangeToggle(type: 'inversed' | 'includeSpaces', value: boolean) {
+    if (type === 'inversed') {
+      inversed = value;
+    } else if (type === 'includeSpaces') {
+      includeSpaces = value;
+    }
+  }
+
   function handleOnChangeRange(type: keyof InputOptions, value: number) {
     inputOptions[type] = value;
   }
@@ -46,12 +58,18 @@
 <Header />
 
 <div class="flex min-h-screen flex-col bg-gray-100">
-  <main class="mx-auto w-full max-w-6xl grow px-4 py-4">
-    <div class="flex flex-col gap-6">
-      <div class="flex rounded-lg bg-white p-6 shadow-md">
-        <InputForm onInput={handleOnInput} bind:value={inputText} />
-        <div class="mx-4 my-2 flex w-64 flex-col gap-1">
-          <Dropdown onChange={(v) => handleOnChangeSelect(v)} options={typelist} placeholder="스타일 선택" title="스타일" value={selectedOption} />
+  <main class="mx-auto w-full max-w-6xl px-4 py-4">
+    <div class="flex flex-col gap-4">
+      <div class="flex flex-col rounded-lg bg-white p-6 shadow-md">
+        <div class="flex">
+          <InputForm onInput={handleOnInput} bind:value={inputText} />
+          <div class="ml-4 my-3 flex w-64 flex-col gap-2">
+            <Dropdown onChange={(v) => handleOnChangeSelect(v)} options={typelist} placeholder="스타일 선택" title="스타일" value={selectedOption} />
+            <Toggle class="justify-between" label="말 순서 바꾸기" onChange={(v) => handleOnChangeToggle('inversed', v)} value={inversed} />
+            <Toggle class="justify-between" label="띄어 쓰기 포함" onChange={(v) => handleOnChangeToggle('includeSpaces', v)} value={includeSpaces} />
+          </div>
+        </div>
+        <div>
           <Slider
             class={getRequiredOpions(selectedOption).includes('a') ? 'block' : 'hidden'}
             isInputNumber={true}

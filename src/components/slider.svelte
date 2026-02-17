@@ -1,3 +1,7 @@
+<script lang="ts" module>
+  let nextId = 0;
+</script>
+
 <script lang="ts">
   import type { ClassValue } from 'svelte/elements';
 
@@ -15,6 +19,9 @@
   }
 
   let { value = $bindable(0), min = 0, max = 100, step = 1, label = '슬라이더', isInputNumber = false, class: className, onChange }: Props = $props();
+
+  const uniqueId = `slider-${nextId++}`;
+
   function handleChange(e: Event) {
     const val = Number((e.target as HTMLInputElement).value);
     value = val;
@@ -24,9 +31,10 @@
 
 <div class={cn('w-full', className)}>
   <div class="flex items-center justify-between">
-    <p class="text-sm font-semibold text-gray-700">{label}</p>
+    <label class="text-sm font-semibold text-gray-700" for={uniqueId}>{label}</label>
     {#if isInputNumber}
       <input
+        id={uniqueId}
         class="w-16 rounded border border-gray-300 p-1 text-sm text-gray-700 focus:border-blue-500 focus:outline-none"
         {max}
         {min}
