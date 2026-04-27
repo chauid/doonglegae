@@ -2,6 +2,7 @@
   "eslint.validate": ["javascript", "typescript", "svelte"],
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.codeActionsOnSave": {
+    "source.fixAll.prettier": "explicit",
     "source.fixAll.eslint": "explicit"
   },
   "[prisma]": {

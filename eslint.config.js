@@ -9,6 +9,9 @@ import svelteParser from 'svelte-eslint-parser';
 import tseslint from 'typescript-eslint';
 
 export default defineConfig(
+  {
+    ignores: ['**/node_modules/*', '**/.svelte-kit/*', '**/build/*'],
+  },
   eslint.configs.recommended,
   tseslint.configs.recommended,
   {
@@ -94,7 +97,7 @@ export default defineConfig(
       parser: svelteParser,
       parserOptions: {
         parser: tsParser,
-      }
+      },
     },
     plugins: { svelte, import: importConfig, '@typescript-eslint': typescripteslint },
     rules: {

@@ -56,7 +56,7 @@
     type="range"
     bind:value
   />
-  <div class="mt-1 flex justify-between text-xs text-gray-500">
+  <div class="mb-2 flex justify-between text-xs text-gray-500">
     <span>{min}</span>
     <span>{max}</span>
   </div>

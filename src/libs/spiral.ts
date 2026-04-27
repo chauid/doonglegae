@@ -10,6 +10,7 @@ export type SpiralParams = {
   theta?: number;
   thetaStep?: number;
   n?: number;
+  textYWidth?: number;
   inversed?: boolean;
 };
 
@@ -31,29 +32,133 @@ export type InputOptions = {
   maxThetaStep: number;
   minThetaStep: number;
   n: number;
+  textYWidth: number;
+  textYWidthStep: number;
+  maxTextYWidth: number;
+  minTextYWidth: number;
 };
 
-export function ArchimedeanSpiral(params: SpiralParams): Point2d[] {
+export type OptionDescription = {
+  a: string;
+  b: string;
+  theta: string;
+  thetaStep: string;
+};
+
+type SampleArchimedeanSpiralParams = {
+  mode: 'text' | 'point';
+  a: number;
+  b: number;
+  thetaStep: number;
+  n: number;
+  textYWidth: number;
+};
+
+export function sampleArchimedeanSpiral(params: SampleArchimedeanSpiralParams): Point2d[] {
   const points: Point2d[] = [];
-  if (
-    params.a === null ||
-    params.a === undefined ||
-    params.b === null ||
-    params.b === undefined ||
-    params.theta === null ||
-    params.theta === undefined ||
-    params.thetaStep === null ||
-    params.thetaStep === undefined ||
-    params.n === null ||
-    params.n === undefined
-  ) {
-    return points;
+  let x = 0;
+  let y = 0;
+  let r = 0;
+  let targetS = 0;
+  let theta = 0;
+
+  if (params.mode === 'point') {
+    for (let i = 0; i < params.n; i++) {
+      targetS = i * params.thetaStep;
+      theta = targetS / Math.sqrt(params.a * params.a + params.b * params.b);
+
+      // Newton iteration
+      for (let j = 0; j < 1000; j++) {
+        const t = params.a + params.b * theta;
+        const sqrt = Math.sqrt(t * t + params.b * params.b);
+        const log = Math.log(t + sqrt);
+        const f = (t * sqrt + params.b * params.b * log) / (2 * params.b) - targetS;
+        const fp = Math.sqrt(t * t + params.b * params.b);
+        const next = theta - f / fp;
+
+        if (Math.abs(next - theta) < 1e-6) {
+          theta = next;
+          break;
+        }
+        theta = next;
+      }
+
+      r = params.a + params.b * theta;
+      x = r * Math.cos(theta);
+      y = r * Math.sin(theta);
+      points.push({ x, y });
+    }
+  }
+  if (params.mode === 'text') {
+    const limitN = params.n * 10;
+    let moddedN = params.n;
+    let moddedCounter = 0;
+    let prevX = NaN;
+    let prevY = NaN;
+    for (let i = 0; i < moddedN; i++) {
+      if (i > limitN) {
+        for (let j = i; j < moddedN; j++) {
+          points.push({ x: Math.round(x), y: Math.round(y / params.textYWidth) });
+        }
+        break;
+      }
+      if (moddedCounter > 10) {
+        points.push({ x: Math.round(x), y: Math.round(y / params.textYWidth) });
+        moddedCounter = 0;
+        continue;
+      }
+      targetS = i * params.thetaStep;
+      theta = targetS / Math.sqrt(params.a * params.a + params.b * params.b);
+      for (let j = 0; j < 1000; j++) {
+        const t = params.a + params.b * theta;
+        const sqrt = Math.sqrt(t * t + params.b * params.b);
+        const log = Math.log(t + sqrt);
+        const f = (t * sqrt + params.b * params.b * log) / (2 * params.b) - targetS;
+        const fp = Math.sqrt(t * t + params.b * params.b);
+        const next = theta - f / fp;
+
+        if (Math.abs(next - theta) < 1e-6) {
+          theta = next;
+          break;
+        }
+        theta = next;
+      }
+
+      r = params.a + params.b * theta;
+      x = r * Math.cos(theta);
+      y = r * Math.sin(theta);
+
+      if (Math.round(x) === Math.round(prevX) && Math.round(y / params.textYWidth) === Math.round(prevY / params.textYWidth)) {
+        moddedN++;
+        moddedCounter++;
+        continue;
+      }
+      prevX = x;
+      prevY = y;
+      points.push({ x: Math.round(x), y: Math.round(y / params.textYWidth) });
+    }
   }
 
+  return points;
+}
+
+type ArchimedeanSpiralParams = {
+  mode: 'text' | 'point';
+  a: number;
+  b: number;
+  theta: number;
+  thetaStep: number;
+  n: number;
+  textYWidth: number;
+};
+
+export function ArchimedeanSpiral(params: ArchimedeanSpiralParams): Point2d[] {
+  const points: Point2d[] = [];
   let x = 0;
   let y = 0;
   let r = 0;
   let angle = 0;
+
   if (params.mode === 'point') {
     for (let i = 0; i < params.n; i++) {
       angle = params.theta + i * params.thetaStep;
@@ -73,13 +178,13 @@ export function ArchimedeanSpiral(params: SpiralParams): Point2d[] {
       if (i > limitN) {
         // console.log('중복 한계:' + i);
         for (let j = i; j < moddedN; j++) {
-          points.push({ x: Math.round(x), y: Math.round(y / 4) }); // 중복 좌표에 대해 원본 문자열 길이의 10배 이상 시점부터는 이전과 동일한 값으로 채움
+          points.push({ x: Math.round(x), y: Math.round(y / params.textYWidth) }); // 중복 좌표에 대해 원본 문자열 길이의 10배 이상 시점부터는 이전과 동일한 값으로 채움
         }
         break;
       }
       if (moddedCounter > 10) {
         // console.log('중복 10회:' + i);
-        points.push({ x: Math.round(x), y: Math.round(y / 4) }); // 중복 좌표가 10번 이상 발생 시점부터는 이전과 동일한 값으로 push
+        points.push({ x: Math.round(x), y: Math.round(y / params.textYWidth) }); // 중복 좌표가 10번 이상 발생 시점부터는 이전과 동일한 값으로 push
         moddedCounter = 0;
         continue;
       }
@@ -87,40 +192,36 @@ export function ArchimedeanSpiral(params: SpiralParams): Point2d[] {
       r = params.a + params.b * angle;
       x = r * Math.cos(angle);
       y = r * Math.sin(angle);
-      if (Math.round(x) === Math.round(prevX) && Math.round(y / 4) === Math.round(prevY / 4)) {
+      if (Math.round(x) === Math.round(prevX) && Math.round(y / params.textYWidth) === Math.round(prevY / params.textYWidth)) {
         moddedN++;
         moddedCounter++;
         continue;
       }
       prevX = x;
       prevY = y;
-      points.push({ x: Math.round(x), y: Math.round(y / 4) });
+      points.push({ x: Math.round(x), y: Math.round(y / params.textYWidth) });
     }
   }
   return points;
 }
 
-export function LogSpiral(params: SpiralParams): Point2d[] {
-  const points: Point2d[] = [];
-  if (
-    params.a === null ||
-    params.a === undefined ||
-    params.b === null ||
-    params.b === undefined ||
-    params.theta === null ||
-    params.theta === undefined ||
-    params.thetaStep === null ||
-    params.thetaStep === undefined ||
-    params.n === null ||
-    params.n === undefined
-  ) {
-    return points;
-  }
+type LogarithmicSpiralParams = {
+  mode: 'text' | 'point';
+  a: number;
+  b: number;
+  theta: number;
+  thetaStep: number;
+  n: number;
+  textYWidth: number;
+};
 
+export function LogarithmicSpiral(params: LogarithmicSpiralParams): Point2d[] {
+  const points: Point2d[] = [];
   let x = 0;
   let y = 0;
   let r = 0;
   let angle = 0;
+
   if (params.mode === 'point') {
     for (let i = 0; i < params.n; i++) {
       angle = params.theta + i * params.thetaStep;
@@ -414,6 +515,7 @@ export function FibonacciSpiral(params: SpiralParams): Point2d[] {
 export function getRequiredOpions(spiralType: SpiralType): string[] {
   switch (spiralType) {
     case 'archimedean':
+      return ['a', 'b', 'thetaStep', 'n'];
     case 'logarithmic':
       return ['a', 'b', 'theta', 'thetaStep', 'n'];
     case 'fermat':
@@ -429,75 +531,50 @@ export function getRequiredOpions(spiralType: SpiralType): string[] {
 }
 
 export function spiralFunction(spiralType: SpiralType, options: SpiralParams) {
-  {
-    switch (spiralType) {
-      case 'archimedean':
-        return ArchimedeanSpiral({
-          mode: options.mode,
-          a: options.a ?? 1,
-          b: options.b ?? 0.2,
-          theta: options.theta ?? 0.1,
-          thetaStep: options.thetaStep ?? 0.1,
-          n: options.n ?? 100,
-        });
-      case 'logarithmic':
-        return LogSpiral({
-          mode: options.mode,
-          a: options.a ?? 1,
-          b: options.b ?? 0.2,
-          theta: options.theta ?? 0.1,
-          thetaStep: options.thetaStep ?? 0.1,
-          n: options.n ?? 100,
-        });
-      case 'fermat':
-        return FermatSpiral({
-          mode: options.mode,
-          a: options.a ?? 1,
-          theta: options.theta ?? 0.1,
-          thetaStep: options.thetaStep ?? 0.1,
-          n: options.n ?? 100,
-        });
-      case 'hyperbolic':
-        return HyperbolicSpiral({
-          mode: options.mode,
-          a: options.a ?? 1,
-          theta: options.theta ?? 0.1,
-          thetaStep: options.thetaStep ?? 0.1,
-          n: options.n ?? 100,
-        });
-      case 'lituus':
-        return LituusSpiral({
-          mode: options.mode,
-          a: options.a ?? 1,
-          theta: options.theta ?? 0.1,
-          thetaStep: options.thetaStep ?? 0.1,
-          n: options.n ?? 100,
-        });
-      case 'theodorus':
-        return SpiralOfTheodorus({ mode: options.mode, n: options.n ?? 100 });
-      case 'fibonacci':
-        return FibonacciSpiral({ mode: options.mode, n: options.n ?? 100 });
-      default:
-        return ArchimedeanSpiral({
-          mode: options.mode,
-          a: options.a ?? 1,
-          b: options.b ?? 0.2,
-          theta: options.theta ?? 0.1,
-          thetaStep: options.thetaStep ?? 0.1,
-          n: options.n ?? 100,
-        });
-    }
+  const setOptions = {
+    mode: options.mode,
+    a: options.a ?? 1,
+    b: options.b ?? 0.2,
+    theta: options.theta ?? 0.1,
+    thetaStep: options.thetaStep ?? 0.5,
+    n: options.n ?? 100,
+    textYWidth: options.textYWidth ?? 4,
+    inversed: options.inversed ?? false,
+  };
+  switch (spiralType) {
+    case 'archimedean':
+      return sampleArchimedeanSpiral(setOptions);
+    // return ArchimedeanSpiral(setOptions);
+    case 'logarithmic':
+      return LogarithmicSpiral(setOptions);
+    case 'fermat':
+      return FermatSpiral(setOptions);
+    case 'hyperbolic':
+      return HyperbolicSpiral(setOptions);
+    case 'lituus':
+      return LituusSpiral(setOptions);
+    case 'theodorus':
+      return SpiralOfTheodorus(setOptions);
+    case 'fibonacci':
+      return FibonacciSpiral(setOptions);
+    default:
+      return ArchimedeanSpiral(setOptions);
   }
 }
 
 export function transformTextToSpiral(text: string, spiralType: SpiralType, options: SpiralParams): string {
-  const setOptions: SpiralParams = {
+  let textYWidth = options.textYWidth ?? 4;
+  if (textYWidth < 1) {
+    textYWidth = 1;
+  }
+  const setOptions = {
     mode: options.mode,
     a: options.a ?? 1,
     b: options.b ?? 0.2,
     theta: options.theta ?? 0.1,
     thetaStep: options.thetaStep ?? 0.5,
     n: text.length,
+    textYWidth: textYWidth,
     inversed: options.inversed ?? false,
   };
 
@@ -506,10 +583,10 @@ export function transformTextToSpiral(text: string, spiralType: SpiralType, opti
   let result = '';
   switch (spiralType) {
     case 'archimedean':
-      points = ArchimedeanSpiral(setOptions);
+      points = sampleArchimedeanSpiral(setOptions);
       break;
     case 'logarithmic':
-      points = LogSpiral(setOptions);
+      points = LogarithmicSpiral(setOptions);
       break;
     case 'fermat':
       points = FermatSpiral(setOptions);
@@ -581,6 +658,10 @@ export function getPresetOptions(spiralType: SpiralType, mode: 'point' | 'text')
           maxThetaStep: 50,
           minThetaStep: -50,
           n: 100,
+          textYWidth: 4,
+          textYWidthStep: 1,
+          maxTextYWidth: 8,
+          minTextYWidth: 1,
         };
       case 'logarithmic':
         return {
@@ -601,6 +682,10 @@ export function getPresetOptions(spiralType: SpiralType, mode: 'point' | 'text')
           maxThetaStep: 5,
           minThetaStep: -5,
           n: 100,
+          textYWidth: 4,
+          textYWidthStep: 1,
+          maxTextYWidth: 8,
+          minTextYWidth: 1,
         };
       case 'fermat':
         return {
@@ -621,6 +706,10 @@ export function getPresetOptions(spiralType: SpiralType, mode: 'point' | 'text')
           maxThetaStep: 5,
           minThetaStep: -5,
           n: 100,
+          textYWidth: 4,
+          textYWidthStep: 1,
+          maxTextYWidth: 8,
+          minTextYWidth: 1,
         };
       case 'hyperbolic':
         return {
@@ -641,6 +730,10 @@ export function getPresetOptions(spiralType: SpiralType, mode: 'point' | 'text')
           maxThetaStep: 5,
           minThetaStep: -5,
           n: 100,
+          textYWidth: 4,
+          textYWidthStep: 1,
+          maxTextYWidth: 8,
+          minTextYWidth: 1,
         };
       case 'lituus':
         return {
@@ -661,6 +754,10 @@ export function getPresetOptions(spiralType: SpiralType, mode: 'point' | 'text')
           maxThetaStep: 5,
           minThetaStep: -5,
           n: 100,
+          textYWidth: 4,
+          textYWidthStep: 1,
+          maxTextYWidth: 8,
+          minTextYWidth: 1,
         };
       case 'theodorus':
         return {
@@ -681,6 +778,10 @@ export function getPresetOptions(spiralType: SpiralType, mode: 'point' | 'text')
           maxThetaStep: 0,
           minThetaStep: 0,
           n: 100,
+          textYWidth: 4,
+          textYWidthStep: 1,
+          maxTextYWidth: 8,
+          minTextYWidth: 1,
         };
       case 'fibonacci':
         return {
@@ -701,6 +802,10 @@ export function getPresetOptions(spiralType: SpiralType, mode: 'point' | 'text')
           maxThetaStep: 0,
           minThetaStep: 0,
           n: 100,
+          textYWidth: 4,
+          textYWidthStep: 1,
+          maxTextYWidth: 8,
+          minTextYWidth: 1,
         };
       default:
         return {
@@ -721,6 +826,10 @@ export function getPresetOptions(spiralType: SpiralType, mode: 'point' | 'text')
           maxThetaStep: 5,
           minThetaStep: -5,
           n: 100,
+          textYWidth: 4,
+          textYWidthStep: 1,
+          maxTextYWidth: 8,
+          minTextYWidth: 1,
         };
     }
     // if (mode === 'text')
@@ -730,21 +839,25 @@ export function getPresetOptions(spiralType: SpiralType, mode: 'point' | 'text')
         return {
           a: 0,
           aStep: 0.1,
-          maxA: 100,
-          minA: -100,
-          b: 2,
-          bStep: 0.1,
-          maxB: 100,
-          minB: -100,
+          maxA: 20,
+          minA: 0,
+          b: 1.11,
+          bStep: 0.01,
+          maxB: 10,
+          minB: -10,
           initTheta: 0,
           initThetaStep: 0.1,
           minInitTheta: -100,
           maxInitTheta: 100,
-          thetaStep: 0.15,
+          thetaStep: -4,
           thetaStepStep: 0.01,
-          maxThetaStep: 50,
-          minThetaStep: -50,
+          maxThetaStep: 20,
+          minThetaStep: -20,
           n: 100,
+          textYWidth: 3,
+          textYWidthStep: 1,
+          maxTextYWidth: 8,
+          minTextYWidth: 1,
         };
       case 'logarithmic':
         return {
@@ -765,6 +878,10 @@ export function getPresetOptions(spiralType: SpiralType, mode: 'point' | 'text')
           maxThetaStep: 5,
           minThetaStep: -5,
           n: 100,
+          textYWidth: 4,
+          textYWidthStep: 1,
+          maxTextYWidth: 8,
+          minTextYWidth: 1,
         };
       case 'fermat':
         return {
@@ -785,6 +902,10 @@ export function getPresetOptions(spiralType: SpiralType, mode: 'point' | 'text')
           maxThetaStep: 5,
           minThetaStep: -5,
           n: 100,
+          textYWidth: 4,
+          textYWidthStep: 1,
+          maxTextYWidth: 8,
+          minTextYWidth: 1,
         };
       case 'hyperbolic':
         return {
@@ -805,6 +926,10 @@ export function getPresetOptions(spiralType: SpiralType, mode: 'point' | 'text')
           maxThetaStep: 5,
           minThetaStep: -5,
           n: 100,
+          textYWidth: 4,
+          textYWidthStep: 1,
+          maxTextYWidth: 8,
+          minTextYWidth: 1,
         };
       case 'lituus':
         return {
@@ -825,6 +950,10 @@ export function getPresetOptions(spiralType: SpiralType, mode: 'point' | 'text')
           maxThetaStep: 5,
           minThetaStep: -5,
           n: 100,
+          textYWidth: 4,
+          textYWidthStep: 1,
+          maxTextYWidth: 8,
+          minTextYWidth: 1,
         };
       case 'theodorus':
         return {
@@ -845,6 +974,10 @@ export function getPresetOptions(spiralType: SpiralType, mode: 'point' | 'text')
           maxThetaStep: 0,
           minThetaStep: 0,
           n: 100,
+          textYWidth: 4,
+          textYWidthStep: 1,
+          maxTextYWidth: 8,
+          minTextYWidth: 1,
         };
       case 'fibonacci':
         return {
@@ -865,6 +998,10 @@ export function getPresetOptions(spiralType: SpiralType, mode: 'point' | 'text')
           maxThetaStep: 0,
           minThetaStep: 0,
           n: 100,
+          textYWidth: 4,
+          textYWidthStep: 1,
+          maxTextYWidth: 8,
+          minTextYWidth: 1,
         };
       default:
         return {
@@ -885,8 +1022,37 @@ export function getPresetOptions(spiralType: SpiralType, mode: 'point' | 'text')
           maxThetaStep: 5,
           minThetaStep: -5,
           n: 100,
+          textYWidth: 4,
+          textYWidthStep: 1,
+          maxTextYWidth: 8,
+          minTextYWidth: 1,
         };
     }
+  }
+}
 
+export function getOptionDescription(spiralType: SpiralType): OptionDescription {
+  switch (spiralType) {
+    case 'archimedean':
+      return {
+        a: '텍스트 시작 위치',
+        b: '텍스트 회전 반경',
+        theta: '',
+        thetaStep: '텍스트 간격, 읽는 방향(음수: 시계방향, 양수: 반시계방향)',
+      };
+    case 'logarithmic':
+      return { a: 'a', b: 'b', theta: 'initial angle', thetaStep: 'angle step' };
+    case 'fermat':
+      return { a: 'a', b: 'b', theta: 'initial angle', thetaStep: 'angle step' };
+    case 'hyperbolic':
+      return { a: 'a', b: 'b', theta: 'initial angle', thetaStep: 'angle step' };
+    case 'lituus':
+      return { a: 'a', b: 'b', theta: 'initial angle', thetaStep: 'angle step' };
+    case 'theodorus':
+      return { a: 'a', b: 'b', theta: 'initial angle', thetaStep: 'angle step' };
+    case 'fibonacci':
+      return { a: 'a', b: 'b', theta: 'initial angle', thetaStep: 'angle step' };
+    default:
+      return { a: 'a', b: 'b', theta: 'initial angle', thetaStep: 'angle step' };
   }
 }
