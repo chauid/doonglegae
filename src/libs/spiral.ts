@@ -3,7 +3,7 @@ import { absMaxPoint, type Point2d } from './points';
 export const SPIRAL_TYPES = ['archimedean', 'logarithmic', 'fermat', 'hyperbolic', 'lituus', 'theodorus', 'fibonacci'] as const;
 export type SpiralType = (typeof SPIRAL_TYPES)[number];
 
-export type SpiralParams = {
+type SpiralParams = {
   mode: 'text' | 'point';
   a?: number;
   b?: number;
@@ -240,12 +240,12 @@ export function LogarithmicSpiral(params: LogarithmicSpiralParams): Point2d[] {
     for (let i = 0; i < moddedN; i++) {
       if (i > limitN) {
         for (let j = i; j < moddedN; j++) {
-          points.push({ x: Math.round(x), y: Math.round(y / 4) });
+          points.push({ x: Math.round(x), y: Math.round(y / params.textYWidth) });
         }
         break;
       }
       if (moddedCounter > 10) {
-        points.push({ x: Math.round(x), y: Math.round(y / 4) });
+        points.push({ x: Math.round(x), y: Math.round(y / params.textYWidth) });
         moddedCounter = 0;
         continue;
       }
@@ -253,29 +253,35 @@ export function LogarithmicSpiral(params: LogarithmicSpiralParams): Point2d[] {
       r = params.a * Math.exp(params.b * angle);
       x = r * Math.cos(angle);
       y = r * Math.sin(angle);
-      if (Math.round(x) === Math.round(prevX) && Math.round(y / 4) === Math.round(prevY / 4)) {
+      if (Math.round(x) === Math.round(prevX) && Math.round(y / params.textYWidth) === Math.round(prevY / 4)) {
         moddedN++;
         moddedCounter++;
         continue;
       }
       prevX = x;
       prevY = y;
-      points.push({ x: Math.round(x), y: Math.round(y / 4) });
+      points.push({ x: Math.round(x), y: Math.round(y / params.textYWidth) });
     }
   }
   return points;
 }
 
-export function FermatSpiral(params: SpiralParams): Point2d[] {
-  const points: Point2d[] = [];
-  if (!params.a || !params.theta || !params.thetaStep || !params.n) {
-    return points;
-  }
+type FermatSpiralParams = {
+  mode: 'text' | 'point';
+  a: number;
+  theta: number;
+  thetaStep: number;
+  n: number;
+  textYWidth: number;
+};
 
+export function FermatSpiral(params: FermatSpiralParams): Point2d[] {
+  const points: Point2d[] = [];
   let x = 0;
   let y = 0;
   let r = 0;
   let angle = 0;
+
   if (params.mode === 'point') {
     for (let i = 0; i < params.n; i++) {
       angle = params.theta + i * params.thetaStep;
@@ -294,12 +300,12 @@ export function FermatSpiral(params: SpiralParams): Point2d[] {
     for (let i = 0; i < moddedN; i++) {
       if (i > limitN) {
         for (let j = i; j < moddedN; j++) {
-          points.push({ x: Math.round(x), y: Math.round(y / 4) });
+          points.push({ x: Math.round(x), y: Math.round(y / params.textYWidth) });
         }
         break;
       }
       if (moddedCounter > 10) {
-        points.push({ x: Math.round(x), y: Math.round(y / 4) });
+        points.push({ x: Math.round(x), y: Math.round(y / params.textYWidth) });
         moddedCounter = 0;
         continue;
       }
@@ -307,20 +313,29 @@ export function FermatSpiral(params: SpiralParams): Point2d[] {
       r = params.a * Math.sqrt(angle);
       x = r * Math.cos(angle);
       y = r * Math.sin(angle);
-      if (Math.round(x) === Math.round(prevX) && Math.round(y / 4) === Math.round(prevY / 4)) {
+      if (Math.round(x) === Math.round(prevX) && Math.round(y / params.textYWidth) === Math.round(prevY / 4)) {
         moddedN++;
         moddedCounter++;
         continue;
       }
       prevX = x;
       prevY = y;
-      points.push({ x: Math.round(x), y: Math.round(y / 4) });
+      points.push({ x: Math.round(x), y: Math.round(y / params.textYWidth) });
     }
   }
   return points;
 }
 
-export function HyperbolicSpiral(params: SpiralParams): Point2d[] {
+type HyperbolicSpiralParams = {
+  mode: 'text' | 'point';
+  a: number;
+  theta: number;
+  thetaStep: number;
+  n: number;
+  textYWidth: number;
+};
+
+export function HyperbolicSpiral(params: HyperbolicSpiralParams): Point2d[] {
   const points: Point2d[] = [];
   if (!params.a || !params.theta || !params.thetaStep || !params.n) {
     return points;
@@ -348,12 +363,12 @@ export function HyperbolicSpiral(params: SpiralParams): Point2d[] {
     for (let i = 0; i < moddedN; i++) {
       if (i > limitN) {
         for (let j = i; j < moddedN; j++) {
-          points.push({ x: Math.round(x), y: Math.round(y / 4) });
+          points.push({ x: Math.round(x), y: Math.round(y / params.textYWidth) });
         }
         break;
       }
       if (moddedCounter > 10) {
-        points.push({ x: Math.round(x), y: Math.round(y / 4) });
+        points.push({ x: Math.round(x), y: Math.round(y / params.textYWidth) });
         moddedCounter = 0;
         continue;
       }
@@ -361,20 +376,29 @@ export function HyperbolicSpiral(params: SpiralParams): Point2d[] {
       r = params.a / angle;
       x = r * Math.cos(angle);
       y = r * Math.sin(angle);
-      if (Math.round(x) === Math.round(prevX) && Math.round(y / 4) === Math.round(prevY / 4)) {
+      if (Math.round(x) === Math.round(prevX) && Math.round(y / params.textYWidth) === Math.round(prevY / 4)) {
         moddedN++;
         moddedCounter++;
         continue;
       }
       prevX = x;
       prevY = y;
-      points.push({ x: Math.round(x), y: Math.round(y / 4) });
+      points.push({ x: Math.round(x), y: Math.round(y / params.textYWidth) });
     }
   }
   return points;
 }
 
-export function LituusSpiral(params: SpiralParams): Point2d[] {
+type LituusSpiralParams = {
+  mode: 'text' | 'point';
+  a: number;
+  theta: number;
+  thetaStep: number;
+  n: number;
+  textYWidth: number;
+};
+
+export function LituusSpiral(params: LituusSpiralParams): Point2d[] {
   const points: Point2d[] = [];
   if (!params.a || !params.theta || !params.thetaStep || !params.n) {
     return points;
@@ -402,12 +426,12 @@ export function LituusSpiral(params: SpiralParams): Point2d[] {
     for (let i = 0; i < moddedN; i++) {
       if (i > limitN) {
         for (let j = i; j < moddedN; j++) {
-          points.push({ x: Math.round(x), y: Math.round(y / 4) });
+          points.push({ x: Math.round(x), y: Math.round(y / params.textYWidth) });
         }
         break;
       }
       if (moddedCounter > 10) {
-        points.push({ x: Math.round(x), y: Math.round(y / 4) });
+        points.push({ x: Math.round(x), y: Math.round(y / params.textYWidth) });
         moddedCounter = 0;
         continue;
       }
@@ -415,7 +439,7 @@ export function LituusSpiral(params: SpiralParams): Point2d[] {
       r = params.a / Math.sqrt(angle);
       x = r * Math.cos(angle);
       y = r * Math.sin(angle);
-      if (Math.round(x) === Math.round(prevX) && Math.round(y / 4) === Math.round(prevY / 4)) {
+      if (Math.round(x) === Math.round(prevX) && Math.round(y / params.textYWidth) === Math.round(prevY / 4)) {
         moddedN++;
         moddedCounter++;
         continue;
@@ -429,7 +453,7 @@ export function LituusSpiral(params: SpiralParams): Point2d[] {
           points.push({ x: Math.round(prevX), y: Math.round(prevY / 4) });
         }
       } else {
-        points.push({ x: Math.round(x), y: Math.round(y / 4) });
+        points.push({ x: Math.round(x), y: Math.round(y / params.textYWidth) });
         prevX = x;
         prevY = y;
       }
@@ -438,7 +462,13 @@ export function LituusSpiral(params: SpiralParams): Point2d[] {
   return points;
 }
 
-export function SpiralOfTheodorus(params: SpiralParams): Point2d[] {
+type SpiralOfTheodorusParams = {
+  mode: 'text' | 'point';
+  n: number;
+  textYWidth: number;
+};
+
+export function SpiralOfTheodorus(params: SpiralOfTheodorusParams): Point2d[] {
   const points: Point2d[] = [];
   if (!params.n) {
     return points;
@@ -464,32 +494,38 @@ export function SpiralOfTheodorus(params: SpiralParams): Point2d[] {
     for (let i = 1; i <= moddedN; i++) {
       if (i > limitN) {
         for (let j = i; j < moddedN; j++) {
-          points.push({ x: Math.round(x), y: Math.round(y / 4) });
+          points.push({ x: Math.round(x), y: Math.round(y / params.textYWidth) });
         }
         break;
       }
       if (moddedCounter > 10) {
-        points.push({ x: Math.round(x), y: Math.round(y / 4) });
+        points.push({ x: Math.round(x), y: Math.round(y / params.textYWidth) });
         moddedCounter = 0;
         continue;
       }
       angle += Math.atan(1 / Math.sqrt(i));
       x += Math.cos(angle) * Math.sqrt(i);
       y += Math.sin(angle) * Math.sqrt(i);
-      if (Math.round(x) === Math.round(prevX) && Math.round(y / 4) === Math.round(prevY / 4)) {
+      if (Math.round(x) === Math.round(prevX) && Math.round(y / params.textYWidth) === Math.round(prevY / 4)) {
         moddedN++;
         moddedCounter++;
         continue;
       }
       prevX = x;
       prevY = y;
-      points.push({ x: Math.round(x), y: Math.round(y / 4) });
+      points.push({ x: Math.round(x), y: Math.round(y / params.textYWidth) });
     }
   }
   return points;
 }
 
-export function FibonacciSpiral(params: SpiralParams): Point2d[] {
+type FibonacciSpiralParams = {
+  mode: 'text' | 'point';
+  n: number;
+  textYWidth: number;
+};
+
+export function FibonacciSpiral(params: FibonacciSpiralParams): Point2d[] {
   const points: Point2d[] = [];
   if (!params.n) {
     return points;
@@ -631,7 +667,23 @@ export function transformTextToSpiral(text: string, spiralType: SpiralType, opti
     }
   });
 
-  result = processingText.map((row) => row.join('')).join('\n');
+  const processingText2 = processingText.map((row) => row.join('').trimEnd());
+
+  let minX = Infinity;
+  for (let i = 0; i < processingText2.length; i++) {
+    if (processingText2[i].trim() === '') {
+      processingText2.splice(i, 1);
+      i--;
+    } else {
+      for (let j = 0; j < processingText2[i].length; j++) {
+        if (processingText2[i].charAt(j) !== ' ') {
+          minX = Math.min(minX, j);
+        }
+      }
+    }
+  }
+
+  result = processingText2.map((row) => row.substring(minX)).join('\n');
 
   return result;
 }
@@ -641,19 +693,19 @@ export function getPresetOptions(spiralType: SpiralType, mode: 'point' | 'text')
     switch (spiralType) {
       case 'archimedean':
         return {
-          a: 5,
+          a: 0.5,
           aStep: 0.1,
           maxA: 100,
           minA: -100,
-          b: 2,
+          b: 2.5,
           bStep: 0.1,
           maxB: 100,
           minB: -100,
           initTheta: 0,
-          initThetaStep: 0.1,
-          minInitTheta: -100,
-          maxInitTheta: 100,
-          thetaStep: 0.15,
+          initThetaStep: 0,
+          minInitTheta: 0,
+          maxInitTheta: 0,
+          thetaStep: 3,
           thetaStepStep: 0.01,
           maxThetaStep: 50,
           minThetaStep: -50,
@@ -838,7 +890,7 @@ export function getPresetOptions(spiralType: SpiralType, mode: 'point' | 'text')
       case 'archimedean':
         return {
           a: 0,
-          aStep: 0.1,
+          aStep: 0.05,
           maxA: 20,
           minA: 0,
           b: 1.11,
@@ -854,10 +906,10 @@ export function getPresetOptions(spiralType: SpiralType, mode: 'point' | 'text')
           maxThetaStep: 20,
           minThetaStep: -20,
           n: 100,
-          textYWidth: 3,
-          textYWidthStep: 1,
+          textYWidth: 2.5,
+          textYWidthStep: 0.1,
           maxTextYWidth: 8,
-          minTextYWidth: 1,
+          minTextYWidth: 0.5,
         };
       case 'logarithmic':
         return {

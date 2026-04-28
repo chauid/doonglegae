@@ -1,38 +1,28 @@
-# sv
+## 말을 둥글게 바꿔줍니다.
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+**before**
 
-## Creating a project
-
-If you're seeing this, you've probably already done this step. Congrats!
-
-```bash
-# create a new project in the current directory
-npx sv create
-
-# create a new project in my-app
-npx sv create my-app
+```
+말을 험하게 하는 사람들은 모두 말을 둥글게 할 필요성이 있어보인다. 서로 말을 둥글게 할 수는 없을까?
 ```
 
-## Developing
+**after**  
+Archimedean 함수 스타일 사용  
+말 순서 바꾸기 on  
+세부 설정: Y축 1칸당 텍스트 크기 0.85, 텍스트 시작 위치 3.1, 텍스트 회전 반경 1.11, 텍스트 간격 -4
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
 ```
-
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
+       험  하   게
+   을              하   는
+말                        사
+         인   다   .         람
+     보              서
+  어        없          로      들
+ 있      는      을              은
+이            ?  까      말
+       수              을      모
+성       할          둥        두
+  요        게   글          말
+     필                 을
+        할   게   글   둥
 ```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
